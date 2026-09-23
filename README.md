@@ -1,0 +1,1 @@
+# Assistente-de-Voz-Com-Whisper-e-ChatGPT
