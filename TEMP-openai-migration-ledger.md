@@ -7,14 +7,14 @@ Aplicação: notebook Colab de assistente de voz. Integração original: `openai
 O autor respondeu **“aprovado”** ao conjunto de correções apresentado na conversa: cliente OpenAI atual, chave segura, captura e liberação do microfone, formatos reais, validação de sequência/conteúdo/dependências/FFmpeg e limpeza de saídas. Autorizou implementar e testar **sem consumir a API**. Fluxo: entregar o conjunto aprovado; solicitar nova decisão somente se o escopo precisar mudar.
 
 1. **Atual: corrigir o fluxo existente e validar localmente — aprovado.** Notebook independente para Colab, README atualizado, testes sem rede externa e captura em navegador com dispositivo simulado. Dependências: Python, Node.js, SDK e bibliotecas de teste. Implementação e testes locais concluídos.
-2. **Validação real — pendente de recursos e decisão de credenciais.** Microfone físico, Colab, download/inferência Whisper, OpenAI e gTTS reais não serão simulados como validação concluída.
+2. **Validação real — confirmada pelo autor.** Em 9 de novembro de 2026, após testar o notebook do commit `65cbe3624b09a75708e0d9dcf8850c3e5c1c9c87`, o autor informou “todas as etapas funcionaram”. Evidência: relato do autor, sem coleta de logs ou observação direta pelo agente.
 3. **Opcional, não aprovado:** Responses API com eventual modelo novo, streaming, histórico, ferramentas, interface web ou execução local da aplicação.
 
 ## Ajuste de modelo e diagnóstico: aprovação recebida
 
 O autor relatou `HTTP 404 / model_not_found / invalid_request_error` no Colab ao usar `gpt-4`. A resposta **“sim”** aprovou atualizar para `gpt-6-luna`, priorizar rapidez e melhorar mensagens com HTTP/código, além de atualizar testes/README/PR sem fazer chamadas pagas. Modelo atual: `gpt-6-luna`, `reasoning_effort="none"`, endpoint Chat Completions. É um ajuste aprovado do fluxo existente; Responses/histórico/ferramentas permanecem fora do escopo.
 
-Fonte oficial consultada: https://developers.openai.com/api/docs/models/gpt-6-luna — confirma Chat Completions e esforço `none`. Sem novo cache, estado, tiers, limite de tokens, verbosidade ou instruções de sistema. Esforço aplicado apenas ao identificador aprovado; overrides de outros modelos não recebem parâmetros não verificados. Acesso da conta, qualidade, custo observado e latência real continuam desconhecidos até novo teste no Colab.
+Fonte oficial consultada: https://developers.openai.com/api/docs/models/gpt-6-luna — confirma Chat Completions e esforço `none`. Sem novo cache, estado, tiers, limite de tokens, verbosidade ou instruções de sistema. Esforço aplicado apenas ao identificador aprovado; overrides de outros modelos não recebem parâmetros não verificados. O funcionamento na conta foi posteriormente confirmado pelo autor. Qualidade sistemática, custo observado e latência real não foram medidos.
 
 Validação adicional: modelo/perfil no JSON da requisição do SDK real, overrides de modelo sem `reasoning_effort`, diagnóstico 404, códigos HTTP e conhecidos preservados, mensagens/códigos arbitrários sem exposição de dados, cota distinguida de rate limit e fechamento do cliente nas falhas. Todos executados em transporte simulado, sem requisição paga.
 
@@ -24,7 +24,7 @@ A avaliação de cada seção está em `docs/revisao-tecnica.md`, tabela “Aval
 
 | Item | Aplicável / suporte | Decisão e evidência |
 | --- | --- | --- |
-| Modelo | Sim / SDK e documentação suportam `gpt-6-luna`; acesso real desconhecido | Troca aprovada após `gpt-4` retornar 404 / `model_not_found` na conta do autor. |
+| Modelo | Sim / SDK/documentação suportam `gpt-6-luna`; funcionamento real confirmado pelo autor | Troca aprovada após `gpt-4` retornar 404 / `model_not_found` na conta do autor. |
 | Arquivos de instrução | Não / não há arquivo existente | Não adicionar AGENTS.md. |
 | Responses | Opcional / modelo e controles precisariam de decisão | Fora do escopo aprovado; modernizar a interface Chat Completions é suficiente para a falha. |
 | Streaming | Não ao reparo / SDK suporta | Preservar resposta completa para síntese. |
@@ -60,6 +60,6 @@ A etapa 1 aprovada foi implementada e validada localmente: **43 testes Python e 
 
 Exemplo do caminho mantido: configurar `OPENAI_API_KEY` no ambiente ou nos Segredos do Colab, transcrever uma pergunta e executar `ask_chatgpt(transcription, model_name="gpt-6-luna")`; a função usa o cliente atual e retorna texto completo. Os testes verificam requisições pelo SDK real com MockTransport, sem rede externa.
 
-Serviços reais e implantação não foram verificados. A etapa 2 depende de Colab, microfone físico, Whisper, chave/acesso/cota OpenAI e Google; não há autorização para consumir API nesta fase. O conflito global de `click` no Colab permanece informado, sem migração de arquitetura. Evoluções da etapa 3 não estão aprovadas. O autor atualizou o acesso do GitHub; a versão segue para revisão por PR na branch `codex/corrige-assistente-voz`. A incorporação na branch principal não faz parte deste envio.
+O autor confirmou a execução bem-sucedida de todas as etapas com serviços reais no Colab. O agente não fez chamadas pagas; o relato do autor é a evidência da etapa 2. Não houve implantação como serviço nem medição de qualidade/custos. O conflito global de `click` no Colab permanece informado, sem migração de arquitetura. Evoluções da etapa 3 não estão aprovadas. O autor atualizou o acesso do GitHub; a versão segue para revisão por PR na branch `codex/corrige-assistente-voz`. A incorporação na branch principal não faz parte deste envio.
 
 Evidências detalhadas e limites: `docs/revisao-tecnica.md` e `docs/validacao/resultados-corrigido.json`.

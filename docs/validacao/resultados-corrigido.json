@@ -34,21 +34,14 @@
     "outputs_cleared": true
   },
   "pip_check": "passed in isolated test environment, not Colab application environment",
-  "real_openai_calls": 0,
-  "real_google_tts_calls": 0,
-  "whisper_inference_executed": false,
   "not_validated": [
-    "Colab installation/runtime",
-    "physical microphone",
-    "Whisper download and inference",
-    "OpenAI credentials/model access/billing/live request",
-    "Google gTTS live synthesis",
-    "perceived audio/transcription/answer quality"
+    "Systematic transcription, answer and voice quality measurements",
+    "Latency and cost measurements",
+    "Reproducibility across other Colab sessions, dependency sets and API accounts"
   ],
   "remote_changes": "review branch codex/corrige-assistente-voz; main not modified",
   "default_model": "gpt-6-luna",
   "default_model_reasoning_effort": "none",
-  "model_access_verified_live": false,
   "user_reported_colab_error": {
     "previous_model": "gpt-4",
     "http_status": 404,
@@ -56,5 +49,22 @@
     "type": "invalid_request_error",
     "source": "user report; not an agent live API test"
   },
-  "error_diagnostics": "HTTP status and allowlisted error codes; raw messages and arbitrary codes are not displayed"
+  "error_diagnostics": "HTTP status and allowlisted error codes; raw messages and arbitrary codes are not displayed",
+  "automated_verification_scope": "Agent-run tests; no live OpenAI or Google TTS calls. User-reported manual validation recorded separately.",
+  "agent_real_openai_calls": 0,
+  "agent_real_google_tts_calls": 0,
+  "agent_whisper_inference_executed": false,
+  "model_access_verified_by_agent": false,
+  "model_access_confirmed_by_user": true,
+  "manual_validation": {
+    "status": "passed as reported by user",
+    "date": "2026-11-09",
+    "code_commit": "65cbe3624b09a75708e0d9dcf8850c3e5c1c9c87",
+    "environment": "Google Colab, user session",
+    "evidence": "User message: todas as etapas funcionaram",
+    "directly_observed_by_agent": false,
+    "logs_collected": false,
+    "billing_measured": false,
+    "scope": "Complete notebook flow including recording, Whisper transcription, OpenAI response and gTTS voice output"
+  }
 }

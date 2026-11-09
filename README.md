@@ -2,7 +2,7 @@
 
 Faça uma pergunta pelo microfone e receba uma resposta em texto e voz. Este projeto educacional conecta gravação no navegador, transcrição com Whisper, resposta pela API da OpenAI e síntese com gTTS em um notebook do **Google Colab**.
 
-**Estado da versão:** as correções aprovadas foram implementadas e verificadas com testes locais, SDK real com transporte simulado e Chromium com microfone simulado. A execução completa no Colab com microfone físico, Whisper, OpenAI e gTTS reais ainda precisa ser validada. Não houve consumo da API durante os testes.
+**Estado da versão:** as correções aprovadas foram implementadas e verificadas com testes locais, SDK real com transporte simulado e Chromium com microfone simulado. Em 9 de novembro de 2026, o autor confirmou que todas as etapas funcionaram no teste real no Colab, incluindo gravação, transcrição, resposta e voz. Os testes automatizados do agente não consumiram API; a validação manual do autor utilizou os serviços reais.
 
 ## Que problema resolve e para que pode ser usado
 
@@ -81,7 +81,7 @@ SETTINGS = {
 }
 ```
 
-Esses são os valores atuais aprovados para o projeto. O modelo de texto foi atualizado após um teste no Colab retornar `HTTP 404 / model_not_found` com o modelo anterior. Ao alterar a configuração, execute novamente a preparação e as funções antes das etapas de áudio. Duração deve ser positiva e finita; outros idiomas precisam de suporte tanto no Whisper quanto no gTTS. Trocar modelos pode alterar custos, desempenho e compatibilidade. A troca para `gpt-6-luna` foi aprovada pelo autor; o acesso ao novo modelo ainda depende da conta/projeto e precisa de validação real.
+Esses são os valores atuais aprovados para o projeto. O modelo de texto foi atualizado após um teste no Colab retornar `HTTP 404 / model_not_found` com o modelo anterior. Ao alterar a configuração, execute novamente a preparação e as funções antes das etapas de áudio. Duração deve ser positiva e finita; outros idiomas precisam de suporte tanto no Whisper quanto no gTTS. Trocar modelos pode alterar custos, desempenho e compatibilidade. A troca para `gpt-6-luna` foi aprovada pelo autor; o autor confirmou o funcionamento do novo modelo na conta/projeto usados no teste. O acesso continua dependendo da configuração de cada conta/projeto.
 
 O perfil de `gpt-6-luna` envia `reasoning_effort="none"`, aprovado para priorizar rapidez em perguntas simples por voz. Esse parâmetro é aplicado apenas ao identificador exato `gpt-6-luna`; outros modelos escolhidos em `SETTINGS` são enviados sem esse parâmetro para evitar incompatibilidades. Não há troca automática de modelo em caso de falha.
 
@@ -97,7 +97,7 @@ A preparação usa o mesmo Python do kernel e interrompe a execução se a insta
 | `openai-whisper` | `20250625` | Reconhecimento de fala no Colab. |
 | `gTTS` | `2.5.4` | Síntese de voz. |
 
-Essas são versões diretas, não um lock completo de todas as dependências transitivas. A instalação conjunta da aplicação e a inferência Whisper não foram verificadas nesta revisão; o ambiente de testes utiliza as dependências leves listadas em `requirements-test.txt`.
+Essas são versões diretas, não um lock completo de todas as dependências transitivas. A execução completa foi confirmada pelo autor na sessão Colab usada no teste; versões transitivas e logs dessa sessão não foram coletados. O ambiente de testes automatizados do agente utiliza as dependências leves listadas em `requirements-test.txt`.
 
 **Conflito conhecido do ambiente:** gTTS 2.5.4 exige `click<8.2`, enquanto algumas ferramentas pré-instaladas no Colab exigem versões maiores. A preparação executa `pip check` e mostra os conflitos. Isso não é resolvido atualizando indiscriminadamente outras ferramentas. Use uma sessão nova e confira os avisos. Se um conflito impedir a execução, será necessário avaliar uma solução de isolamento ou mudança do mecanismo de voz antes de alterar a arquitetura.
 
@@ -164,7 +164,7 @@ node tests/browser-recording.cjs
 
 O teste usa `/usr/bin/chromium` por padrão; configure `CHROMIUM_PATH` se necessário. Ele abre apenas uma página em localhost, usa dispositivo de áudio simulado, valida o áudio com ffprobe e confere a liberação das trilhas e a permissão negada.
 
-**Resultado:** 43 testes Python e 13 testes Node aprovados, além do teste Chromium. [Resultados e limitações](docs/revisao-tecnica.md). Ainda falta executar o fluxo no Colab com microfone físico, Whisper real, chave válida e serviços OpenAI/Google disponíveis. Os testes não verificam qualidade de transcrição, qualidade da resposta, voz, preço ou acesso real ao modelo.
+**Resultado:** 43 testes Python e 13 testes Node aprovados, além do teste Chromium. [Resultados e limitações](docs/revisao-tecnica.md). O autor também confirmou que todas as etapas funcionaram no Colab com os serviços reais, após a atualização do modelo. Essa confirmação é um teste funcional relatado pelo autor; não houve medição sistemática de qualidade da transcrição, da resposta, da voz, latência ou custos.
 
 ## Solução de problemas
 

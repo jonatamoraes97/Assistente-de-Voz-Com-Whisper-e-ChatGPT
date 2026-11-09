@@ -4,7 +4,7 @@ Revisão em 9 de novembro de 2026. Versão original analisada: `d47270f02dff4641
 
 ## Resultado e mudanças
 
-As correções foram implementadas no notebook e os testes locais passaram. A validação integrada com recursos reais do Colab, Whisper, OpenAI e Google continua pendente. Nenhum teste enviou perguntas à OpenAI ou textos para síntese no Google.
+As correções foram implementadas no notebook e os testes locais passaram. Em 9 de novembro de 2026, o autor informou: “todas as etapas funcionaram”, após receber o notebook atualizado para GPT-6 Luna. A confirmação registra o sucesso funcional integrado no Colab; o agente não observou diretamente a sessão nem coletou logs/áudios. Os testes automatizados do agente não enviaram perguntas à OpenAI nem textos para síntese no Google.
 
 | Problema original | Comportamento corrigido | Evidência |
 | --- | --- | --- |
@@ -17,7 +17,7 @@ As correções foram implementadas no notebook e os testes locais passaram. A va
 | Risco de usar dados antigos após falha | Etapa invalida seus resultados e os resultados dependentes antes de começar | Células reais reexecutadas com estado antigo e falhas forçadas. |
 | Fala vazia ou resposta ausente/incompleta | Interrompe antes da etapa seguinte | Testes de vazio, `length`, `content_filter` e ausência de choices. |
 | Erros externos pouco claros | Mensagens para autenticação, permissão, cota, timeout, conexão, status e síntese | HTTP/erros simulados pelo transporte do SDK e testes de gTTS; 404 com `model_not_found`, 401/403/429/400/500, códigos desconhecidos e distinção entre cota e limite temporário. |
-| Instalações dispersas e FFmpeg não verificado | Preparação única com versões diretas especificadas, falha de instalação interrompe; `pip check` informa conflitos | Testes de Colab ausente, FFmpeg ausente e instalação com falha. Instalação conjunta real no Colab não verificada. |
+| Instalações dispersas e FFmpeg não verificado | Preparação única com versões diretas especificadas, falha de instalação interrompe; `pip check` informa conflitos | Testes de Colab ausente, FFmpeg ausente e instalação com falha. Funcionamento completo na sessão Colab confirmado pelo autor; logs da instalação não coletados. |
 | Possível arquivo final parcial de síntese | Escrita temporária e substituição atômica; falhas não publicam arquivo parcial | Testes reais de filesystem com stream simulado e falhas, incluindo limpeza do temporário. |
 | Áudio e erros embutidos nas saídas publicadas | Notebook entregue com todas as saídas vazias e contadores nulos | nbformat, compilação de todas as células e inspeção de ausência de áudio embutido. Histórico Git não reescrito. |
 | README com apenas título | Propósito, uso, configuração, custos/dados, manutenção, testes e limites documentados | Links locais e comandos de testes conferidos. |
@@ -51,15 +51,13 @@ Os comandos completos para criar o ambiente de testes estão no README. Não hav
 
 As instalações e a consulta à documentação usaram internet. A suíte Python bloqueia conexões de socket; os testes de gravação não usam OpenAI nem Google. O teste Chromium acessa uma página servida em localhost, sem abrir Colab. O teste de gTTS real substitui o stream da rede por bytes de teste; não verifica que esses bytes tenham sido sintetizados pelo serviço.
 
-## O que ainda precisa de validação real
+## Validação real confirmada pelo autor
 
-- Instalação e importação conjunta das dependências da aplicação em uma sessão Colab atual.
-- Microfone físico, permissão no contexto incorporado do Colab e reprodução audível no navegador do usuário.
-- Download/carregamento e inferência do Whisper `small`, incluindo qualidade do português e desempenho em CPU/GPU.
-- Chave, faturamento, limites e acesso real ao `gpt-6-luna` na conta OpenAI.
-- Resposta real da OpenAI e síntese real por gTTS/Google.
+Após o ajuste do modelo, o autor confirmou na conversa que **“todas as etapas funcionaram”** no Colab. A versão de código fornecida para esse teste foi o commit `65cbe3624b09a75708e0d9dcf8850c3e5c1c9c87`.
 
-Não foi feita avaliação de qualidade das respostas, do reconhecimento de fala ou da voz. Testes simulados não estabelecem essas propriedades.
+Isso registra a conclusão funcional do fluxo de preparação, gravação, transcrição Whisper, resposta OpenAI e síntese/reprodução de voz na sessão utilizada. A origem da evidência é o relato do autor: não foram coletados logs, valores de faturamento, versões transitivas, métricas de qualidade ou amostras de áudio. O acesso ao modelo funcionou na conta/projeto usados nessa execução; não constitui garantia para outras contas ou execuções futuras.
+
+Os 56 testes automatizados e o teste Chromium continuam sendo verificações independentes realizadas pelo agente. Qualidade de transcrição, resposta e voz, desempenho e custos não foram avaliados sistematicamente.
 
 ## Dependências e limites restantes
 
@@ -73,7 +71,7 @@ O [SDK oficial](https://github.com/openai/openai-python#usage) recomenda Respons
 
 | Seção avaliada | Aplicabilidade e decisão |
 | --- | --- |
-| Modelo | `gpt-6-luna` aprovado; payload/cliente verificados, acesso da conta ainda não verificado. Modelo anterior `gpt-4` retornou 404 conforme relato do autor. |
+| Modelo | `gpt-6-luna` aprovado; payload/cliente verificados, funcionamento na conta/projeto confirmados pelo autor, sem acesso direto do agente às credenciais ou à sessão. Modelo anterior `gpt-4` retornou 404 conforme relato do autor. |
 | Arquivos de instrução | Nenhum existente; não criado AGENTS.md. |
 | Responses | Evolução opcional fora do conjunto aprovado; exigiria decisão de modelo, custo e compatibilidade. |
 | Streaming | Não acrescentado; o fluxo usa texto completo antes de gerar voz. |
@@ -96,4 +94,4 @@ Fornecedor: SDK oficial, sem Azure, LiteLLM, OpenRouter, Together ou Vercel AI S
 
 As correções e o ajuste de modelo aprovados estão concluídos: implementação, documentação e testes sem API. A versão corrigida está na branch `codex/corrige-assistente-voz`, para revisão por pull request. A incorporação na branch principal é uma etapa separada da validação local.
 
-Próximos passos: revisar o pull request e realizar a validação real no Colab com os recursos listados. Alterações adicionais de modelo, fornecedor ou arquitetura continuam dependendo de aprovação.
+Próximo passo: incorporar o pull request após a revisão do autor. A validação funcional no Colab foi confirmada pelo autor. Alterações adicionais de modelo, fornecedor ou arquitetura continuam dependendo de aprovação.
