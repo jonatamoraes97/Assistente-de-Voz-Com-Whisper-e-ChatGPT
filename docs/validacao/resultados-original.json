@@ -1,0 +1,67 @@
+{
+  "baseline_commit": "d47270f02dff46418858a97f6490ed830abc17aa",
+  "python": "3.12.14",
+  "checks": [
+    {
+      "check": "schema_nbformat",
+      "status": "confirmado",
+      "detail": "Notebook válido no esquema nbformat 4.0; isso não verifica execução."
+    },
+    {
+      "check": "sintaxe_python",
+      "status": "confirmado",
+      "detail": "9 células Python compilam após transformação IPython."
+    },
+    {
+      "check": "language_ausente",
+      "status": "confirmado",
+      "detail": "Célula 5 isolada reproduz NameError: language (Whisper substituído)."
+    },
+    {
+      "check": "transcription_ausente",
+      "status": "confirmado",
+      "detail": "Célula 9 isolada reproduz NameError: transcription (OpenAI substituída)."
+    },
+    {
+      "check": "api_legada",
+      "status": "confirmado",
+      "detail": "APIRemovedInV1 com SDK OpenAI 2.54.0, antes de qualquer HTTP."
+    },
+    {
+      "check": "chave_sobrescrita",
+      "status": "confirmado",
+      "detail": "Célula 8 sobrescreve credencial previamente configurada pelo texto de exemplo."
+    },
+    {
+      "check": "formato_entrada",
+      "status": "confirmado",
+      "detail": "WebM simulado é salvo sem conversão como .wav; retorno fixa /content e diverge fora do Colab."
+    },
+    {
+      "check": "formato_saida",
+      "status": "confirmado",
+      "detail": "gTTS.save grava bytes MP3 sem converter pelo sufixo .wav; stream substituído, sem Google."
+    },
+    {
+      "check": "saidas_publicadas",
+      "status": "confirmado",
+      "detail": "Dois NameError salvos; célula 2 contém áudio embutido no HTML (conteúdo não reproduzido)."
+    },
+    {
+      "check": "dependencia_colab",
+      "status": "confirmado",
+      "detail": "Captura exige google.colab; Python/Jupyter comum não atende ao ambiente previsto."
+    },
+    {
+      "check": "microfone_sem_liberacao",
+      "status": "confirmado",
+      "detail": "Captura simulada termina sem chamar stop() em nenhuma trilha do microfone."
+    },
+    {
+      "check": "permissao_negada",
+      "status": "confirmado",
+      "detail": "getUserMedia rejeitado gera rejeição não tratada e mantém a Promise de record pendente (janela de 50 ms)."
+    }
+  ],
+  "network_requests": 0
+}
