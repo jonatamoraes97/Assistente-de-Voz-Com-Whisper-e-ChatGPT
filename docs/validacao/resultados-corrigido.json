@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-09",
+  "baseline_commit": "d47270f02dff46418858a97f6490ed830abc17aa",
+  "notebook_sha256": "0e45686cef07f1f76d006ec003ffdc2fd33e15e630f98ee5da2c762dbaef977e",
+  "python": {
+    "version": "3.12.14",
+    "command": "python -m unittest discover -s tests -v",
+    "tests": 39,
+    "passed": 39,
+    "failed": 0,
+    "external_socket_connections": "blocked"
+  },
+  "node": {
+    "version": "24.22.1",
+    "command": "node --test tests/recording.test.cjs",
+    "tests": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "browser": {
+    "command": "node tests/browser-recording.cjs",
+    "playwright": "1.62.1",
+    "chromium": "156.0.8078.79",
+    "capture": "passed",
+    "mime": "audio/webm;codecs=opus",
+    "ffprobe_codec": "opus",
+    "permission_denied": "passed",
+    "tracks_released": "passed",
+    "device": "simulated"
+  },
+  "notebook": {
+    "schema": "valid",
+    "code_cells": 7,
+    "outputs_cleared": true
+  },
+  "pip_check": "passed in isolated test environment, not Colab application environment",
+  "real_openai_calls": 0,
+  "real_google_tts_calls": 0,
+  "whisper_inference_executed": false,
+  "not_validated": [
+    "Colab installation/runtime",
+    "physical microphone",
+    "Whisper download and inference",
+    "OpenAI credentials/model access/billing/live request",
+    "Google gTTS live synthesis",
+    "perceived audio/transcription/answer quality"
+  ],
+  "remote_changes": "review branch codex/corrige-assistente-voz; main not modified"
+}

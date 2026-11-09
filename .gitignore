@@ -1,0 +1,10 @@
+.venv*/
+__pycache__/
+*.pyc
+.env
+.env.*
+request_audio.*
+response_audio.*
+.response-*.mp3
+.ipynb_checkpoints/
+node_modules/
