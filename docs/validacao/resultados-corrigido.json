@@ -1,12 +1,12 @@
 {
   "date": "2026-11-09",
   "baseline_commit": "d47270f02dff46418858a97f6490ed830abc17aa",
-  "notebook_sha256": "0e45686cef07f1f76d006ec003ffdc2fd33e15e630f98ee5da2c762dbaef977e",
+  "notebook_sha256": "64088bb259e78a717159b2b2b0e62b7f18d88db92732a419bf740c6352aaa119",
   "python": {
     "version": "3.12.14",
     "command": "python -m unittest discover -s tests -v",
-    "tests": 39,
-    "passed": 39,
+    "tests": 43,
+    "passed": 43,
     "failed": 0,
     "external_socket_connections": "blocked"
   },
@@ -45,5 +45,16 @@
     "Google gTTS live synthesis",
     "perceived audio/transcription/answer quality"
   ],
-  "remote_changes": "review branch codex/corrige-assistente-voz; main not modified"
+  "remote_changes": "review branch codex/corrige-assistente-voz; main not modified",
+  "default_model": "gpt-6-luna",
+  "default_model_reasoning_effort": "none",
+  "model_access_verified_live": false,
+  "user_reported_colab_error": {
+    "previous_model": "gpt-4",
+    "http_status": 404,
+    "code": "model_not_found",
+    "type": "invalid_request_error",
+    "source": "user report; not an agent live API test"
+  },
+  "error_diagnostics": "HTTP status and allowlisted error codes; raw messages and arbitrary codes are not displayed"
 }

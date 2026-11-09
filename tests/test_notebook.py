@@ -33,7 +33,7 @@ def captured(mime='audio/webm', content=b'\x1a\x45\xdf\xa3fake-webm'):
 
 def completion(content='Resposta em português.', finish_reason='stop'):
     return {
-        'id': 'chatcmpl-offline', 'object': 'chat.completion', 'created': 0, 'model': 'gpt-4',
+        'id': 'chatcmpl-offline', 'object': 'chat.completion', 'created': 0, 'model': 'gpt-6-luna',
         'choices': [{'index': 0, 'finish_reason': finish_reason, 'message': {'role': 'assistant', 'content': content}}],
     }
 
@@ -74,14 +74,14 @@ class NotebookTests(unittest.TestCase):
         colab.userdata = types.SimpleNamespace(get=lambda name: secret)
         return patch.dict(sys.modules, {'google.colab': colab})
 
-    def sdk(self, response=None, status=200, error=None):
+    def sdk(self, response=None, status=200, error=None, error_code='test'):
         def handler(request):
             self.requests.append(request)
             if error:
                 raise error
             data = completion() if response is None else response
             if status != 200:
-                data = {'error': {'message': f'server echoed {DUMMY}', 'type': 'test_error', 'code': 'test'}}
+                data = {'error': {'message': f'server echoed {DUMMY}', 'type': 'test_error', 'code': error_code}}
             return httpx.Response(status, json=data)
         def build(**kwargs):
             client = self.original_client(
@@ -131,7 +131,7 @@ class NotebookTests(unittest.TestCase):
         self.assertNotIn('data:audio', json.dumps(NOTEBOOK))
 
     def test_configuration_preserves_approved_defaults_and_key(self):
-        self.assertEqual(self.scope['SETTINGS'], {'language':'pt', 'record_seconds':5, 'whisper_model':'small', 'openai_model':'gpt-4'})
+        self.assertEqual(self.scope['SETTINGS'], {'language':'pt', 'record_seconds':5, 'whisper_model':'small', 'openai_model':'gpt-6-luna'})
         self.assertEqual(os.environ['OPENAI_API_KEY'], DUMMY)
 
     def test_each_stage_without_setup_has_actionable_error(self):
@@ -230,18 +230,21 @@ class NotebookTests(unittest.TestCase):
                 self.scope['read_api_key']()
             self.assertNotIn(DUMMY,str(caught.exception))
 
-    def test_real_sdk_uses_chat_completions_and_original_model(self):
+    def test_real_sdk_uses_chat_completions_and_approved_quick_profile(self):
         with self.sdk():
             self.assertEqual(self.scope['ask_chatgpt']('  Olá!  '),'Resposta em português.')
         self.assertEqual(len(self.requests),1)
         self.assertEqual(str(self.requests[0].url),'https://api.openai.com/v1/chat/completions')
-        self.assertEqual(json.loads(self.requests[0].content),{'model':'gpt-4','messages':[{'role':'user','content':'Olá!'}]})
+        self.assertEqual(json.loads(self.requests[0].content),{'model':'gpt-6-luna','messages':[{'role':'user','content':'Olá!'}],'reasoning_effort':'none'})
         self.assertTrue(all(c.is_closed() for c in self.clients))
 
     def test_sdk_preserves_explicit_model_argument(self):
-        with self.sdk():
-            self.scope['ask_chatgpt']('Olá',model_name='explicit-test-model')
-        self.assertEqual(json.loads(self.requests[0].content)['model'],'explicit-test-model')
+        for model in ('gpt-4','explicit-test-model'):
+            with self.subTest(model=model), self.sdk():
+                self.scope['ask_chatgpt']('Olá',model_name=model)
+            payload=json.loads(self.requests[-1].content)
+            self.assertEqual(payload['model'],model)
+            self.assertNotIn('reasoning_effort',payload)
 
     def test_empty_transcription_never_constructs_client(self):
         with patch.object(openai,'OpenAI') as client:
@@ -255,7 +258,42 @@ class NotebookTests(unittest.TestCase):
             with self.subTest(status=status), self.sdk(status=status), self.assertRaisesRegex(RuntimeError,fragment) as caught:
                 self.scope['ask_chatgpt']('Olá')
             self.assertNotIn(DUMMY,str(caught.exception))
+            self.assertIn(f'HTTP: {status}',str(caught.exception))
             self.assertTrue(self.clients[-1].is_closed())
+
+    def test_sdk_model_not_found_has_safe_actionable_diagnostic(self):
+        with self.sdk(status=404,error_code='model_not_found'), self.assertRaises(RuntimeError) as caught:
+            self.scope['ask_chatgpt']('Olá')
+        text=str(caught.exception)
+        self.assertIn('chave/projeto',text)
+        self.assertIn("SETTINGS['openai_model']",text)
+        self.assertIn('HTTP: 404',text)
+        self.assertIn('Código: model_not_found',text)
+        self.assertNotIn(DUMMY,text)
+        self.assertTrue(self.clients[-1].is_closed())
+
+    def test_sdk_known_error_codes_are_preserved_without_server_messages(self):
+        for status,code in [(401,'invalid_api_key'),(403,'permission_denied'),(429,'insufficient_quota'),(400,'invalid_value'),(500,'server_error')]:
+            with self.subTest(status=status,code=code), self.sdk(status=status,error_code=code), self.assertRaises(RuntimeError) as caught:
+                self.scope['ask_chatgpt']('Olá')
+            self.assertIn(f'HTTP: {status}',str(caught.exception))
+            self.assertIn(f'Código: {code}',str(caught.exception))
+            self.assertNotIn(DUMMY,str(caught.exception))
+
+    def test_sdk_untrusted_error_codes_do_not_leak_data(self):
+        for code in (DUMMY,'invalid_api_key '+DUMMY,{'secret':DUMMY},None):
+            with self.subTest(code=code), self.sdk(status=400,error_code=code), self.assertRaises(RuntimeError) as caught:
+                self.scope['ask_chatgpt']('Olá')
+            self.assertIn('HTTP: 400',str(caught.exception))
+            self.assertIn('Código: não informado ou não reconhecido',str(caught.exception))
+            self.assertNotIn(DUMMY,str(caught.exception))
+
+    def test_sdk_distinguishes_quota_from_rate_limiting(self):
+        for code,expected in [('insufficient_quota','saldo insuficiente'),('billing_hard_limit_reached','saldo insuficiente'),('rate_limit_exceeded','Aguarde')]:
+            with self.subTest(code=code), self.sdk(status=429,error_code=code), self.assertRaisesRegex(RuntimeError,expected) as caught:
+                self.scope['ask_chatgpt']('Olá')
+            self.assertIn(f'Código: {code}',str(caught.exception))
+            self.assertNotIn(DUMMY,str(caught.exception))
 
     def test_sdk_connection_and_timeout_errors(self):
         for error,fragment in [(httpx.ConnectError(DUMMY),'conectar'),(httpx.ReadTimeout(DUMMY),'demorou')]:
@@ -319,6 +357,8 @@ class NotebookTests(unittest.TestCase):
         self.assertEqual(self.scope['transcription'],'Olá, assistente.')
         self.assertEqual(self.scope['chatgpt_response'],'Resposta em português.')
         self.assertEqual(Path(self.scope['response_audio']).read_bytes(),b'ID3-offline-mp3')
+        self.assertEqual(json.loads(self.requests[0].content)['model'],'gpt-6-luna')
+        self.assertEqual(json.loads(self.requests[0].content)['reasoning_effort'],'none')
 
     def test_failed_stages_invalidate_all_downstream_values(self):
         mapping = {
